@@ -36,6 +36,7 @@ localparam AUIPC_CALC   = 4'b1110;
 localparam AUIPC_WB     = 4'b1111;
 localparam LUI          = 5'b10000;
 localparam LUI_WB       = 5'b10001;
+localparam JALR_WAIT    = 5'b10010;
 
 // Instruction Opcodes
 localparam LW      = 7'b0000011;
@@ -43,8 +44,8 @@ localparam SW      = 7'b0100011;
 localparam RTYPE   = 7'b0110011;
 localparam ITYPE   = 7'b0010011;
 localparam JALI    = 7'b1101111;
-localparam BRANCHI = 7'b1100011;
 localparam JALRI   = 7'b1100111;
+localparam BRANCHI = 7'b1100011;
 localparam AUIPCI  = 7'b0010111;
 localparam LUII    = 7'b0110111;
 
@@ -67,36 +68,31 @@ always @(*) begin
                 RTYPE:   next_state = EXECUTER;
                 ITYPE:   next_state = EXECUTEI;
                 JALI:    next_state = JAL_CALC;
-                JALRI:   next_state = JALR_CALC;
+                JALRI:   next_state = JALR_WAIT;
                 BRANCHI: next_state = BRANCH;
                 AUIPCI:  next_state = AUIPC_CALC;
                 LUII:    next_state = LUI;
                 default: next_state = FETCH;
             endcase
         end
-        JAL_CALC:    next_state = JAL_WB;
-        JAL_WB:      next_state = FETCH;
-        JALR_CALC:   next_state = JALR_WB;
-        JALR_WB:     next_state = FETCH;
-
-        MEMADR: begin
-            if (instruction_opcode == LW)
-                next_state = MEMREAD;
-            else
-                next_state = MEMWRITE;
-        end
-        MEMREAD:     next_state = MEMWB;
-        MEMWB:       next_state = FETCH;
-        MEMWRITE:    next_state = FETCH;
-        EXECUTER:    next_state = ALUWB;
-        ALUWB:       next_state = FETCH;
-        EXECUTEI:    next_state = ALUWB;
-        BRANCH:      next_state = FETCH;
-        AUIPC_CALC:  next_state = AUIPC_WB;
-        AUIPC_WB:    next_state = FETCH;
-        LUI:         next_state = LUI_WB;
-        LUI_WB:      next_state = FETCH;
-        default:     next_state = FETCH;
+        MEMADR:       next_state = (instruction_opcode == LW) ? MEMREAD : MEMWRITE;
+        MEMREAD:      next_state = MEMWB;
+        MEMWB:        next_state = FETCH;
+        MEMWRITE:     next_state = FETCH;
+        EXECUTER:     next_state = ALUWB;
+        EXECUTEI:     next_state = ALUWB;
+        ALUWB:        next_state = FETCH;
+        JAL_CALC:     next_state = JAL_WB;
+        JAL_WB:       next_state = FETCH;
+        JALR_WAIT:    next_state = JALR_CALC;
+        JALR_CALC:    next_state = JALR_WB;
+        JALR_WB:      next_state = FETCH;
+        BRANCH:       next_state = FETCH;
+        AUIPC_CALC:   next_state = AUIPC_WB;
+        AUIPC_WB:     next_state = FETCH;
+        LUI:          next_state = LUI_WB;
+        LUI_WB:       next_state = FETCH;
+        default:      next_state = FETCH;
     endcase
 end
 
@@ -120,30 +116,18 @@ always @(*) begin
             memory_read = 1;
             ir_write    = 1;
             pc_write    = 1;
-            alu_src_a   = 2'b00; 
-            alu_src_b   = 2'b01; 
-            aluop       = 2'b00;
+            alu_src_a   = 2'b00;
+            alu_src_b   = 2'b01;
         end
 
         DECODE: begin
-            case (instruction_opcode)
-                AUIPCI, BRANCHI, ITYPE, RTYPE: begin
-                    alu_src_a = 2'b10; 
-                    alu_src_b = 2'b10; 
-                    aluop     = 2'b00;
-                end
-                default: begin
-                    alu_src_a = 2'b10;
-                    alu_src_b = 2'b10; 
-                    aluop     = 2'b00;
-                end
-            endcase
+            alu_src_a = 2'b10;
+            alu_src_b = 2'b10;
         end
 
         MEMADR: begin
             alu_src_a = 2'b01;
             alu_src_b = 2'b10;
-            aluop     = 2'b00;
         end
 
         MEMREAD: begin
@@ -168,10 +152,10 @@ always @(*) begin
         end
 
         EXECUTEI: begin
-            alu_src_a     = 2'b01;
-            alu_src_b     = 2'b10;
-            aluop         = 2'b10;
-            is_immediate  = 1;
+            alu_src_a    = 2'b01;
+            alu_src_b    = 2'b10;
+            aluop        = 2'b10;
+            is_immediate = 1;
         end
 
         ALUWB: begin
@@ -180,24 +164,27 @@ always @(*) begin
         end
 
         JAL_CALC: begin
-            alu_src_a = 2'b10;   
-            alu_src_b = 2'b01;    
-            aluop     = 2'b00;
+            alu_src_a = 2'b10;
+            alu_src_b = 2'b01;
             pc_write  = 1;
             pc_source = 1;
         end
 
         JAL_WB: begin
-            alu_src_a     = 2'b00; 
-            alu_src_b     = 2'b00; 
             reg_write     = 1;
             memory_to_reg = 0;
         end
 
+        JALR_WAIT: begin
+            alu_src_a     = 2'b01;
+            alu_src_b     = 2'b10;
+            aluop         = 2'b00;
+        end
+
         JALR_CALC: begin
-            alu_src_a     = 2'b10; 
-            alu_src_b     = 2'b01; 
-            aluop         = 2'b00; 
+            alu_src_a     = 2'b10;
+            alu_src_b     = 2'b01;
+            aluop         = 2'b00;
             pc_write      = 1;
             pc_source     = 1;
             is_immediate  = 1;
@@ -206,8 +193,6 @@ always @(*) begin
         JALR_WB: begin
             reg_write     = 1;
             memory_to_reg = 0;
-            alu_src_a     = 2'b00;
-            alu_src_b     = 2'b00;
         end
 
         BRANCH: begin
@@ -219,9 +204,8 @@ always @(*) begin
         end
 
         AUIPC_CALC: begin
-            alu_src_a = 2'b10; 
-            alu_src_b = 2'b10; 
-            aluop     = 2'b00;
+            alu_src_a = 2'b10;
+            alu_src_b = 2'b10;
         end
 
         AUIPC_WB: begin
@@ -230,16 +214,15 @@ always @(*) begin
         end
 
         LUI: begin
-            alu_src_a = 2'b11; 
-            alu_src_b = 2'b10; 
-            aluop     = 2'b00;
+            alu_src_a = 2'b11;
+            alu_src_b = 2'b10;
         end
 
         LUI_WB: begin
             reg_write     = 1;
             memory_to_reg = 0;
         end
-    endcase    
+    endcase
 end
 
 endmodule

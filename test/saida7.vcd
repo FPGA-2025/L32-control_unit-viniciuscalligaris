@@ -1,5 +1,5 @@
 $date
-	Sun Jul 20 19:43:36 2025
+	Wed Jul 23 09:12:29 2025
 $end
 $version
 	Icarus Verilog
@@ -67,52 +67,54 @@ $var parameter 7 U ITYPE $end
 $var parameter 7 V JALI $end
 $var parameter 7 W JALRI $end
 $var parameter 4 X JALR_CALC $end
-$var parameter 4 Y JALR_WB $end
-$var parameter 4 Z JAL_CALC $end
-$var parameter 4 [ JAL_WB $end
-$var parameter 5 \ LUI $end
-$var parameter 7 ] LUII $end
-$var parameter 5 ^ LUI_WB $end
-$var parameter 7 _ LW $end
-$var parameter 4 ` MEMADR $end
-$var parameter 4 a MEMREAD $end
-$var parameter 4 b MEMWB $end
-$var parameter 4 c MEMWRITE $end
-$var parameter 7 d RTYPE $end
-$var parameter 7 e SW $end
-$var reg 2 f alu_src_a [1:0] $end
-$var reg 2 g alu_src_b [1:0] $end
-$var reg 2 h aluop [1:0] $end
+$var parameter 5 Y JALR_WAIT $end
+$var parameter 4 Z JALR_WB $end
+$var parameter 4 [ JAL_CALC $end
+$var parameter 4 \ JAL_WB $end
+$var parameter 5 ] LUI $end
+$var parameter 7 ^ LUII $end
+$var parameter 5 _ LUI_WB $end
+$var parameter 7 ` LW $end
+$var parameter 4 a MEMADR $end
+$var parameter 4 b MEMREAD $end
+$var parameter 4 c MEMWB $end
+$var parameter 4 d MEMWRITE $end
+$var parameter 7 e RTYPE $end
+$var parameter 7 f SW $end
+$var reg 2 g alu_src_a [1:0] $end
+$var reg 2 h alu_src_b [1:0] $end
+$var reg 2 i aluop [1:0] $end
 $var reg 1 * ir_write $end
 $var reg 1 ) is_immediate $end
 $var reg 1 ( lorD $end
 $var reg 1 ' memory_read $end
 $var reg 1 & memory_to_reg $end
 $var reg 1 % memory_write $end
-$var reg 5 i next_state [4:0] $end
+$var reg 5 j next_state [4:0] $end
 $var reg 1 $ pc_source $end
 $var reg 1 # pc_write $end
 $var reg 1 " pc_write_cond $end
 $var reg 1 ! reg_write $end
-$var reg 5 j state [4:0] $end
+$var reg 5 k state [4:0] $end
 $upscope $end
 $upscope $end
 $enddefinitions $end
 $comment Show the parameter values. $end
 $dumpall
-b100011 e
-b110011 d
-b101 c
-b100 b
-b11 a
-b10 `
-b11 _
-b10001 ^
-b110111 ]
-b10000 \
-b1011 [
-b1010 Z
-b1101 Y
+b100011 f
+b110011 e
+b101 d
+b100 c
+b11 b
+b10 a
+b11 `
+b10001 _
+b110111 ^
+b10000 ]
+b1011 \
+b1010 [
+b1101 Z
+b10010 Y
 b1100 X
 b1100111 W
 b1101111 V
@@ -140,11 +142,11 @@ b10111 .
 $end
 #0
 $dumpvars
-b0 j
-b1 i
-b0 h
-b1 g
-b0 f
+b0 k
+b1 j
+b0 i
+b1 h
+b0 g
 b11 J
 b101 I
 bx H
@@ -203,14 +205,14 @@ b0 H
 1G
 #5000
 b10 -
-b10 f
-b10 ,
 b10 g
+b10 ,
+b10 h
 0'
 0*
 0#
-b10 i
-b1 j
+b10 j
+b1 k
 18
 #6000
 08
@@ -221,12 +223,12 @@ b10 9
 0C
 b1 H
 #7000
-b11 i
 b10 ,
-b10 g
+b10 h
 b1 -
-b1 f
-b10 j
+b1 g
+b11 j
+b10 k
 18
 #8000
 08
@@ -236,11 +238,11 @@ b10 H
 1(
 1'
 b0 ,
-b0 g
+b0 h
 b0 -
-b0 f
-b100 i
-b11 j
+b0 g
+b100 j
+b11 k
 18
 #10000
 08
@@ -250,12 +252,12 @@ b0 9
 1?
 b11 H
 #11000
-b0 i
 1&
 1!
 0(
 0'
-b100 j
+b0 j
+b100 k
 18
 #12000
 08
@@ -266,14 +268,14 @@ b100 j
 b100 H
 #13000
 b1 ,
-b1 g
+b1 h
 1#
 1*
 1'
 0&
 0!
-b1 i
-b0 j
+b1 j
+b0 k
 18
 #14000
 08
